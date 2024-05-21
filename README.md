@@ -12,7 +12,7 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 3. Load the image in a emulator or virtualiser with a BIOS, not UEFI as we don't have that yet.
 
 # Why?
-I've always found XNU and Darwin really interesting to me and I've always wanted to do stuff with it but due to the way XNU/Darwin is, you can't really do much. Therefore, LUM/MARINER sprung into existance. And well... because why not? It seemed like a fun idea.
+I've always found XNU and Darwin really interesting to me and I've always wanted to do stuff with it but due to the way XNU/Darwin is, you can't really do much. Therefore, LUM/MARINER sprung into existence. And well... because why not? It seemed like a fun idea.
 
 # What does LUM stand for?
 "Like Unix... Maybe?"
