@@ -19,3 +19,7 @@ I've always found XNU and Darwin really interesting to me and I've always wanted
 
 # What does MARINER stand for?
 It's a reference to something. I may say it in the future.
+
+
+
+Oh, and I should probably point out that I'm doing this for fun and learning, before anyone attempts to destroy me for this... I know some people will.
