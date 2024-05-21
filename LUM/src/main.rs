@@ -21,7 +21,7 @@ pub extern "C" fn _start() -> () {
     let hello = "Hello, LUM/MARINER!\n";
     let oh = "Oh and...\n";
     let newline = "We now have newline support in LUM!";
-    print::log_formatted(format_args!("{}\n{}\n{}\n{}", hello, oh, newline));
+    print::log_formatted(format_args!("{}\n{}\n{}", hello, oh, newline));
 
     wait::wait(4);
 
