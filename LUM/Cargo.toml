@@ -1,0 +1,13 @@
+[package]
+name = "LUM"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+bootloader = "0.9"
+
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
