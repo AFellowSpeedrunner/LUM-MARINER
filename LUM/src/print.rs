@@ -1,242 +1,176 @@
-use core::fmt::Write;
+use core::fmt;
+use lazy_static::lazy_static;
+use spin::Mutex;
+use volatile::Volatile;
 
-// VGA text mode buffer address.
-static mut VGA_BUFFER: *mut u16 = 0xb8000 as *mut u16;
-
-// Define VGA display dimensions.
-const VGA_WIDTH: usize = 80;
-const VGA_HEIGHT: usize = 25;
-
-// Define a simple spinlock mutex for synchronization.
-static mut VGA_MUTEX: SpinlockMutex<()> = SpinlockMutex::new(());
-
-// Define a simple spinlock mutex.
-pub struct SpinlockMutex<T> {
-    data: T,
-    locked: bool,
-}
-
-impl<T> SpinlockMutex<T> {
-    pub const fn new(data: T) -> Self {
-        SpinlockMutex { data, locked: false }
-    }
-
-    pub fn lock(&mut self) -> SpinlockMutexGuard<T> {
-        while self.locked {}
-        self.locked = true;
-        SpinlockMutexGuard { inner: self }
-    }
-
-    pub fn unlock(&mut self) {
-        self.locked = false;
-    }
-}
-
-pub struct SpinlockMutexGuard<'a, T> {
-    inner: &'a mut SpinlockMutex<T>,
-}
-
-impl<'a, T> Drop for SpinlockMutexGuard<'a, T> {
-    fn drop(&mut self) {
-        self.inner.unlock();
-    }
-}
-
-// Function to log a string to the VGA buffer.
-pub fn log_string(s: &str) {
-    // Lock the mutex to ensure exclusive access to the VGA buffer.
-    let _lock = unsafe { VGA_MUTEX.lock() };
-
-    // Initialize variables for tracking cursor position.
-    let mut cursor_x = 0;
-    let mut cursor_y = 0;
-
-    // Write each byte of the string to the VGA buffer.
-    for byte in s.bytes() {
-        match byte {
-            // Handle newline character.
-            b'\n' => {
-                // Move to the beginning of the next line.
-                cursor_x = 0;
-                cursor_y += 1;
-
-                // Check if cursor reached the end of the screen.
-                if cursor_y >= VGA_HEIGHT {
-                    // Scroll the screen up by one line.
-                    scroll_up();
-                    cursor_y -= 1;
-                }
-            }
-            // Handle other characters.
-            _ => {
-                // Calculate the position in the VGA buffer.
-                let position = cursor_y * VGA_WIDTH + cursor_x;
-
-                // Write the character to the VGA buffer.
-                unsafe {
-                    *VGA_BUFFER.offset(position as isize) = (0x0f00 | byte as u16) as u16;
-                }
-
-                // Move cursor to the next position.
-                cursor_x += 1;
-
-                // Check if cursor reaches the end of the line.
-                if cursor_x >= VGA_WIDTH {
-                    cursor_x = 0;
-                    cursor_y += 1;
-
-                    // Check if cursor reached the end of the screen.
-                    if cursor_y >= VGA_HEIGHT {
-                        // Scroll the screen up by one line.
-                        scroll_up();
-                        cursor_y -= 1;
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Function to scroll the screen up by one line.
-fn scroll_up() {
-    // Lock the mutex to ensure exclusive access to the VGA buffer.
-    let _lock = unsafe { VGA_MUTEX.lock() };
-
-    // Copy each line of the screen buffer to the line above it.
-    for y in 1..VGA_HEIGHT {
-        for x in 0..VGA_WIDTH {
-            unsafe {
-                let src_offset = y * VGA_WIDTH + x;
-                let dest_offset = (y - 1) * VGA_WIDTH + x;
-                *VGA_BUFFER.offset(dest_offset as isize) = *VGA_BUFFER.offset(src_offset as isize);
-            }
-        }
-    }
-
-    // Clear the last line of the screen buffer.
-    for x in 0..VGA_WIDTH {
-        unsafe {
-            let offset = (VGA_HEIGHT - 1) * VGA_WIDTH + x;
-            *VGA_BUFFER.offset(offset as isize) = (0x0f00 | b' ' as u16);
-        }
-    }
-}
-
-// Function to log formatted string to the VGA buffer.
-pub fn log_formatted(fmt: core::fmt::Arguments) {
-    // Lock the mutex to ensure exclusive access to the VGA buffer.
-    let _lock = unsafe { VGA_MUTEX.lock() };
-
-    // Write the formatted string to the VGA buffer using the Writer.
-    let mut writer = Writer {
-        buffer: unsafe { VGA_BUFFER },
+lazy_static! {
+    /// A global `Writer` instance that can be used for printing to the VGA text buffer.
+    ///
+    /// Used by the `print!` and `println!` macros.
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        row_position: 0,
-    };
-    writer.write_fmt(fmt).unwrap();
+        color_code: ColorCode::new(Color::White, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
+}
 
-    // After printing the message, move the cursor to the next line.
-    let mut cursor_x = writer.column_position;
-    let mut cursor_y = writer.row_position;
+/// The standard color palette in VGA text mode.
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Color {
+    Black = 0,
+    Blue = 1,
+    Green = 2,
+    Cyan = 3,
+    Red = 4,
+    Magenta = 5,
+    Brown = 6,
+    LightGray = 7,
+    DarkGray = 8,
+    LightBlue = 9,
+    LightGreen = 10,
+    LightCyan = 11,
+    LightRed = 12,
+    Pink = 13,
+    Yellow = 14,
+    White = 15,
+}
 
-    // Move to the next line.
-    cursor_x = 0;
-    cursor_y += 1;
+/// A combination of a foreground and a background color.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(transparent)]
+struct ColorCode(u8);
 
-    // Check if cursor reached the end of the screen.
-    if cursor_y >= VGA_HEIGHT {
-        // Scroll the screen up by one line.
-        scroll_up();
+impl ColorCode {
+    /// Create a new `ColorCode` with the given foreground and background colors.
+    fn new(foreground: Color, background: Color) -> ColorCode {
+        ColorCode((background as u8) << 4 | (foreground as u8))
     }
 }
 
-// Function to clear the VGA buffer (clear the screen).
-pub fn clear_screen() {
-    // Lock the mutex to ensure exclusive access to the VGA buffer.
-    let _lock = unsafe { VGA_MUTEX.lock() };
+/// A screen character in the VGA text buffer, consisting of an ASCII character and a `ColorCode`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(C)]
+struct ScreenChar {
+    ascii_character: u8,
+    color_code: ColorCode,
+}
 
-    // Iterate over each character position in the VGA buffer and clear it.
-    for y in 0..VGA_HEIGHT {
-        for x in 0..VGA_WIDTH {
-            let position = y * VGA_WIDTH + x;
-            unsafe {
-                // Set each character to a space with default attribute.
-                *VGA_BUFFER.offset(position as isize) = (0x0f00 | b' ' as u16) as u16;
+/// The height of the text buffer (normally 25 lines).
+const BUFFER_HEIGHT: usize = 25;
+/// The width of the text buffer (normally 80 columns).
+const BUFFER_WIDTH: usize = 80;
+
+/// A structure representing the VGA text buffer.
+#[repr(transparent)]
+struct Buffer {
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
+}
+
+/// A writer type that allows writing ASCII bytes and strings to an underlying `Buffer`.
+///
+/// Wraps lines at `BUFFER_WIDTH`. Supports newline characters and implements the
+/// `core::fmt::Write` trait.
+pub struct Writer {
+    column_position: usize,
+    color_code: ColorCode,
+    buffer: &'static mut Buffer,
+}
+
+impl Writer {
+    /// Writes an ASCII byte to the buffer.
+    ///
+    /// Wraps lines at `BUFFER_WIDTH`. Supports the `\n` newline character.
+    pub fn write_byte(&mut self, byte: u8) {
+        match byte {
+            b'\n' => self.new_line(),
+            byte => {
+                if self.column_position >= BUFFER_WIDTH {
+                    self.new_line();
+                }
+
+                let row = BUFFER_HEIGHT - 1;
+                let col = self.column_position;
+
+                let color_code = self.color_code;
+                self.buffer.chars[row][col].write(ScreenChar {
+                    ascii_character: byte,
+                    color_code,
+                });
+                self.column_position += 1;
             }
         }
     }
-}
 
-// Writer struct for logging formatted strings.
-struct Writer {
-    buffer: *mut u16,
-    column_position: usize,
-    row_position: usize,
-}
-
-impl core::fmt::Write for Writer {
-    fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        // Write each byte of the string to the VGA buffer.
+    /// Writes the given ASCII string to the buffer.
+    ///
+    /// Wraps lines at `BUFFER_WIDTH`. Supports the `\n` newline character. Does **not**
+    /// support strings with non-ASCII characters, since they can't be printed in the VGA text
+    /// mode.
+    fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
-                // Handle newline character.
-                b'\n' => {
-                    // Move to the beginning of the next line.
-                    self.column_position = 0;
-                    self.row_position += 1;
-                }
-                // Handle other characters.
-                byte => {
-                    // Check if the current character exceeds the screen width.
-                    if self.column_position >= VGA_WIDTH {
-                        // Move to the next line.
-                        self.column_position = 0;
-                        self.row_position += 1;
-                    }
-                    // Check if the current position exceeds the screen height.
-                    if self.row_position >= VGA_HEIGHT {
-                        // Scroll the screen up by one line.
-                        scroll_up();
-                        self.row_position -= 1;
-                    }
-
-                    // Calculate the position in the VGA buffer.
-                    let position = self.row_position * VGA_WIDTH + self.column_position;
-
-                    // Write the character to the VGA buffer.
-                    unsafe {
-                        *self.buffer.offset(position as isize) = (0x0f00 | byte as u16) as u16;
-                    }
-
-                    // Move cursor to the next position.
-                    self.column_position += 1;
-
-                    // If the character is a space, check if the next word fits on the current line.
-                    if byte == b' ' {
-                        let next_word_start = s[self.column_position..].find(|c: char| !c.is_whitespace());
-                        if let Some(next_word_start) = next_word_start {
-                            // Calculate the length of the next word.
-                            let next_word_length = s[self.column_position + next_word_start..]
-                                .find(|c: char| c.is_whitespace())
-                                .unwrap_or(s.len() - self.column_position);
-
-                            // Check if the next word fits on the current line.
-                            let word_fits = self.column_position + next_word_length < VGA_WIDTH;
-
-                            // Check if the next character is a punctuation mark.
-                            let next_char_is_punctuation = s.as_bytes().get(self.column_position + next_word_start + next_word_length) == Some(&b'.');
-
-                            // If the word doesn't fit and the next character is a punctuation mark, move to the next line.
-                            if !word_fits && next_char_is_punctuation {
-                                // Move to the next line.
-                                self.column_position = 0;
-                                self.row_position += 1;
-                            }
-                        }
-                    }
-                }
+                // printable ASCII byte or newline
+                0x20..=0x7e | b'\n' => self.write_byte(byte),
+                // not part of printable ASCII range
+                _ => self.write_byte(0xfe),
             }
         }
+    }
+
+    /// Shifts all lines one line up and clears the last row.
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    /// Clears a row by overwriting it with blank characters.
+    fn clear_row(&mut self, row: usize) {
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
+        }
+    }
+}
+
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
         Ok(())
     }
+}
+
+/// Like the `print!` macro in the standard library, but prints to the VGA text buffer.
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::print::_print(format_args!($($arg)*)));
+}
+
+/// Like the `println!` macro in the standard library, but prints to the VGA text buffer.
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+/// Prints the given formatted string to the VGA text buffer
+/// through the global `WRITER` instance.
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
