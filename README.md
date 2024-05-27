@@ -7,9 +7,11 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 
 # So, how do you even build this?
 
-1. Have rust installed.
-2. In LUM, run cargo bootimage.
-3. Load the image in a emulator or virtualiser with a BIOS, not UEFI as we don't have that yet.
+1. Git clone this repo.
+2. Have rust nightly installed using rustup.
+3. Run cargo install bootimage
+4. In LUM, run cargo bootimage.
+5. Load the image in a emulator or virtualiser with a BIOS, not UEFI as we don't have that yet. (But I plan for it eventually when this gets somewhere usable.)
 
 # Why?
 I've always found XNU and Darwin really interesting to me and I've always wanted to do stuff with it but due to the way XNU/Darwin is, you can't really do much. Therefore, LUM/MARINER sprung into existence. And well... because why not? It seemed like a fun idea.
