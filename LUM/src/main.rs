@@ -8,10 +8,27 @@ mod wait;
 
 // This function is called on panic.
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
     print::clear_screen();
-    let crash = "PANIC: Well, something happened.";
-    print::log_formatted(format_args!("{}\n", crash));
+
+    // Extract the location if available
+    if let Some(location) = info.location() {
+        print::log_formatted(format_args!(
+            "PANIC: at file '{}' line {}\n",
+            location.file(),
+            location.line()
+        ));
+    } else {
+        print::log_formatted(format_args!("PANIC: Location unknown.\n"));
+    }
+
+    // Extract the payload if available
+    if let Some(payload) = info.payload().downcast_ref::<&str>() {
+        print::log_formatted(format_args!("Message: {}\n", payload));
+    } else {
+        print::log_formatted(format_args!("Message: Well, something happened.\n"));
+    }
+
     loop {}
 }
 
@@ -21,11 +38,13 @@ pub extern "C" fn _start() -> () {
     let hello = "Hello, LUM/MARINER!\n";
     let oh = "Oh and...\n";
     let newline = "We now have newline support in LUM!";
+
+    // Log messages to the screen
     print::log_formatted(format_args!("{}\n{}\n{}", hello, oh, newline));
 
+    // Wait for 4 seconds
     wait::wait(4);
 
-    // If we have nothing else to do, jump to the panic handler.
-    panic!();
-
+    // Trigger a panic to demonstrate panic handling
+    panic!("");
 }
