@@ -44,7 +44,7 @@ fn lum_main(boot_info: &'static BootInfo) -> ! {
     let hello = "Hello, LUM/MARINER!\n";
     let oh = "Oh and...\n";
     let newline = "We now have a better print system in LUM!\n";
-    let thanksandsorry = "Credits to Phillip Oppermann for the print code, sorry I stole it from blog_os... nothing was working and I was desperate...\n";
+    let thanksandsorry = "Credits to Phillip Oppermann for literally the entire current base of this kernel, sorry I stole it from blog_os... I guess I'm too lazy... sorry once again...\n";
 
     // Log messages to the screen
     println!("{}", format_args!("{}\n{}\n{}\n{}", hello, oh, newline, thanksandsorry));
