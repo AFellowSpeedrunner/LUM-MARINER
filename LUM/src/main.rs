@@ -1,9 +1,13 @@
 #![no_std]
 #![no_main]
 
-use core::panic::PanicInfo;
+extern crate alloc;
 
-mod print;
+use core::panic::PanicInfo;
+use LUM::println;
+use LUM::task::{executor::Executor, keyboard, Task};
+use bootloader::{entry_point, BootInfo};
+
 mod wait;
 
 // This function is called on panic.
@@ -27,12 +31,16 @@ fn panic(info: &PanicInfo) -> ! {
         println!("{}", format_args!("Message: Well, something happened.\n"));
     }
 
-    loop {}
+    LUM::hlt_loop();
 }
 
-// Entry point of the program.
-#[no_mangle]
-pub extern "C" fn _start() -> () {
+entry_point!(lum_main);
+
+fn lum_main(boot_info: &'static BootInfo) -> ! {
+    use LUM::allocator;
+    use LUM::memory::{self, BootInfoFrameAllocator};
+    use x86_64::VirtAddr;
+
     let hello = "Hello, LUM/MARINER!\n";
     let oh = "Oh and...\n";
     let newline = "We now have a better print system in LUM!\n";
@@ -41,9 +49,33 @@ pub extern "C" fn _start() -> () {
     // Log messages to the screen
     println!("{}", format_args!("{}\n{}\n{}\n{}", hello, oh, newline, thanksandsorry));
 
+    // Prints dots, unneeded right now.
+    // LUM::init();
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+
+    // Keyboard press print code
+    // let mut executor = Executor::new();
+    // executor.spawn(Task::new(example_task()));
+    // executor.spawn(Task::new(keyboard::print_keypresses()));
+    // executor.run();
+
     // Wait for 4 seconds
     wait::wait(4);
 
     // Trigger a panic to demonstrate panic handling
     panic!("");
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
