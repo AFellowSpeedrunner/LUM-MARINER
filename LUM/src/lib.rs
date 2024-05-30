@@ -3,7 +3,6 @@
 #![feature(const_mut_refs)]
 
 extern crate alloc;
-use core::panic::PanicInfo;
 
 pub mod allocator;
 pub mod gdt;
