@@ -3,13 +3,13 @@ LUM/MARINER attempts to aim to be a clone of XNU/Darwin written in Rust just wit
 
 Credits to [phil-opp](https://github.com/phil-opp) for the base code of this kernel.
 
-# What I plan for this?
+## What I plan for this?
 
 I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like a clone of XNU/Darwin to some degree. I plan on making this compatible with Linux/Unix applications and making the kernel modular to allow for easier modifications.
 
-# So, how do you even build this?
+## So, how do you even build this?
 
-Mac:
+### Mac:
 1. Git clone this repo.
 2. Install brew from [brew.sh](https://brew.sh).
 3. Run 'brew install rustup'.
@@ -17,7 +17,7 @@ Mac:
 5. Run 'cargo install bootimage'.
 6. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
 
-Ubuntu:
+### Ubuntu:
 1. Git clone this repo.
 2. Install rustup from [rustup.rs](https://rustup.rs). (snap rustup is a little broken from my testing...)
 3. Hit to 2 customise during install.
@@ -31,13 +31,13 @@ Ubuntu:
 11. Run 'rustup component add llvm-tools-preview'.
 12. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
 
-# Why?
+## Why?
 I've always found XNU and Darwin really interesting to me and I've always wanted to do stuff with it but due to the way XNU/Darwin is, you can't really do much. Therefore, LUM/MARINER sprung into existence. And well... because why not? It seemed like a fun idea.
 
-# What does LUM stand for?
+## What does LUM stand for?
 "Like Unix... Maybe?"
 
-# What does MARINER stand for?
+## What does MARINER stand for?
 It's a reference to something. I may say it in the future.
 
 
