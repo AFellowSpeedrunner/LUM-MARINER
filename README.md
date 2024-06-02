@@ -17,7 +17,7 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 5. Run 'cargo install bootimage'.
 6. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
 
-### Ubuntu:
+### Linux (Currently only tested on Ubuntu, follow at your own risk if on other distros):
 1. Git clone this repo.
 2. Install rustup from [rustup.rs](https://rustup.rs). (snap rustup is a little broken from my testing...)
 3. Hit to 2 customise during install.
@@ -30,6 +30,9 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 10. Run 'cargo install bootimage'.
 11. Run 'rustup component add llvm-tools-preview'.
 12. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
+
+### Windows:
+1. Either install Ubuntu on WSL2 or a VM and follow the Linux instructions, or better yet just switch to Linux entirely.
 
 ## Why?
 I've always found XNU and Darwin really interesting to me and I've always wanted to do stuff with it but due to the way XNU/Darwin is, you can't really do much. Therefore, LUM/MARINER sprung into existence. And well... because why not? It seemed like a fun idea.
