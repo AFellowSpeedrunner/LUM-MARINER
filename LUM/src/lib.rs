@@ -11,6 +11,7 @@ pub mod memory;
 pub mod serial;
 pub mod task;
 pub mod print;
+pub mod ulsh;
 
 pub fn init() {
     gdt::init();
