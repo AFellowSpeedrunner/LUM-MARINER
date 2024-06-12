@@ -10,6 +10,7 @@ use futures_util::{
     task::AtomicWaker,
 };
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
+use alloc::string::String;
 
 static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
 static WAKER: AtomicWaker = AtomicWaker::new();
@@ -35,9 +36,8 @@ pub struct ScancodeStream {
 
 impl ScancodeStream {
     pub fn new() -> Self {
-        SCANCODE_QUEUE
-            .try_init_once(|| ArrayQueue::new(100))
-            .expect("ScancodeStream::new should only be called once");
+        // Ensure the queue is initialized once
+        initialize_scancode_queue();
         ScancodeStream { _private: () }
     }
 }
@@ -73,15 +73,43 @@ pub async fn print_keypresses() {
         layouts::Us104Key,
         HandleControl::Ignore,
     );
+    let mut buffer = String::new(); // Buffer to store the current line
 
     while let Some(scancode) = scancodes.next().await {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
             if let Some(key) = keyboard.process_keyevent(key_event) {
                 match key {
-                    DecodedKey::Unicode(character) => print!("{}", character),
-                    DecodedKey::RawKey(key) => print!("{:?}", key),
+                    DecodedKey::Unicode(character) => {
+                        if character == '\n' {
+                            println!("{}", buffer); // Print the buffer when Enter is pressed
+                            buffer.clear(); // Clear the buffer for the next line
+                        } else if character == '\x08' { // Backspace character
+                            if !buffer.is_empty() {
+                                buffer.pop();
+                                print!("\x08 \x08"); // Handle backspace correctly
+                            }
+                        } else {
+                            buffer.push(character);
+                            print!("{}", character);
+                        }
+                    }
+                    DecodedKey::RawKey(key) => {
+                        // Handle raw key if needed
+                    }
                 }
             }
+        }
+    }
+}
+
+
+/// Initialize the SCANCODE_QUEUE if it hasn't been initialized yet
+pub fn initialize_scancode_queue() {
+    if SCANCODE_QUEUE.try_get().is_err() {
+        if let Err(_) = SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100)) {
+            println!("ERROR: Failed to initialize scancode queue");
+        } else {
+            println!("Scancode queue initialized");
         }
     }
 }
