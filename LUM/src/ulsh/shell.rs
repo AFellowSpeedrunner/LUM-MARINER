@@ -17,11 +17,11 @@ pub async fn ulsh_main() {
                 println!("Exiting shell...\n");
                 break;
             }
-            "hello" => {
-                println!("Hello, world!\n");
+            "ahoy" => {
+                println!("Ahoy, LUM/MARINER!\n");
             }
             "help" => {
-                println!("Available commands:\nhello - Say hello\nexit - Exit the shell\n");
+                println!("Available commands:\nahoy - Ahoy, captain!\nexit - Exit the shell\n");
             }
             _ => {
                 println!("Unknown command: {}\n", input.trim());
@@ -33,6 +33,7 @@ pub async fn ulsh_main() {
 async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> String {
     let mut input = String::new();
     let mut scancodes = ScancodeStream::new();
+    let mut buffer = String::new(); // Buffer to store the current line
 
     while let Some(scancode) = scancodes.next().await {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
@@ -40,9 +41,17 @@ async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> 
                 match key {
                     DecodedKey::Unicode(character) => {
                         if character == '\n' {
+                            println!("{}", character); // Print the newline character
                             break;
+                        } else if character == '\x08' { // Backspace character
+                            if !input.is_empty() {
+                                input.pop();
+                                buffer.pop();
+                                println!("\x08 \x08"); // Handle backspace correctly
+                            }
                         } else {
                             input.push(character);
+                            buffer.push(character);
                             println!("{}", character);
                         }
                     }
