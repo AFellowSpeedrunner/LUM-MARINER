@@ -33,7 +33,7 @@ fn lum_main(boot_info: &'static BootInfo) -> ! {
 
     let ahoy = "Ahoy, LUM/MARINER!\n";
     let oh = "Oh and...\n";
-    let shell = "We now have a non-functional shell in LUM...\n";
+    let shell = "We now have a non-func- I mean somewhat functional shell in LUM... sorry me...\n";
     let thanksandsorry = "Credits to Phillip Oppermann for literally the entire current base of this kernel, sorry I stole it from blog_os... I guess I'm too lazy... sorry once again...\n";
 
     // Log messages to the screen
