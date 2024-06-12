@@ -7,6 +7,7 @@ use core::panic::PanicInfo;
 use LUM::println;
 use bootloader::{entry_point, BootInfo};
 use LUM::task::{executor::Executor, keyboard, Task};
+use LUM::task::keyboard::initialize_scancode_queue;
 
 // This function is called on panic.
 #[panic_handler]
@@ -46,6 +47,9 @@ fn lum_main(boot_info: &'static BootInfo) -> ! {
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+
+    // Ensure scancode queue is initialized before starting tasks
+    initialize_scancode_queue();
 
     let mut executor = Executor::new();
     executor.spawn(Task::new(keyboard::print_keypresses()));
