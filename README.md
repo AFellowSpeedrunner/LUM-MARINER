@@ -15,7 +15,7 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 3. Run 'brew install rustup'.
 4. Run 'rustup toolchain install nightly'.
 5. Run 'cargo install bootimage'.
-6. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
+6. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86_64 --drive format=raw,file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
 
 ### Linux (Currently only tested on Ubuntu, follow at your own risk if on other distros):
 1. Git clone this repo.
@@ -29,7 +29,7 @@ I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like
 9. Run '. "$HOME/.cargo/env"'.
 10. Run 'cargo install bootimage'.
 11. Run 'rustup component add llvm-tools-preview'.
-12. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86-64 --drive format=raw,file=file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
+12. In LUM-MARINER/LUM, run 'cargo bootimage && qemu-system-x86_64 --drive format=raw,file=target/x86_64-unknown-none/debug/bootimage-LUM.bin'. This currently only works on BIOS QEMU, not UEFI QEMU.
 
 ### Windows:
 1. Either install Ubuntu on WSL2 or a VM and follow the Linux instructions, or better yet just switch to Linux entirely.
