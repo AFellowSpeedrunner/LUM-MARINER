@@ -21,12 +21,12 @@ static WAKER: AtomicWaker = AtomicWaker::new();
 pub(crate) fn add_scancode(scancode: u8) {
     if let Ok(queue) = SCANCODE_QUEUE.try_get() {
         if let Err(_) = queue.push(scancode) {
-            println!("WARNING: scancode queue full; dropping keyboard input");
+            println!("WARNING: scancode queue full; dropping keyboard input\n\n");
         } else {
             WAKER.wake();
         }
     } else {
-        println!("WARNING: scancode queue uninitialized");
+        println!("WARNING: scancode queue uninitialized\n\n");
     }
 }
 
@@ -48,7 +48,7 @@ impl Stream for ScancodeStream {
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<u8>> {
         let queue = SCANCODE_QUEUE
             .try_get()
-            .expect("scancode queue not initialized");
+            .expect("scancode queue not initialized\n\n");
 
         // fast path
         if let Some(scancode) = queue.pop() {
@@ -107,9 +107,9 @@ pub async fn print_keypresses() {
 pub fn initialize_scancode_queue() {
     if SCANCODE_QUEUE.try_get().is_err() {
         if let Err(_) = SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100)) {
-            println!("ERROR: Failed to initialize scancode queue");
+            println!("ERROR: Failed to initialize scancode queue\n\n");
         } else {
-            println!("Scancode queue initialized");
+            println!("Scancode queue initialized\n\n");
         }
     }
 }
