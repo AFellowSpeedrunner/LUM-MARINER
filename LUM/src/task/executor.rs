@@ -1,7 +1,8 @@
 use super::{Task, TaskId};
-use alloc::{collections::BTreeMap, sync::Arc, task::Wake};
+use alloc::{collections::BTreeMap, sync::Arc};
 use core::task::{Context, Poll, Waker};
 use crossbeam_queue::ArrayQueue;
+use alloc::task::Wake;
 
 pub struct Executor {
     tasks: BTreeMap<TaskId, Task>,
@@ -20,7 +21,7 @@ impl Executor {
 
     pub fn spawn(&mut self, task: Task) {
         let task_id = task.id;
-        if self.tasks.insert(task.id, task).is_some() {
+        if self.tasks.insert(task_id, task).is_some() {
             panic!("task with same ID already in tasks");
         }
         self.task_queue.push(task_id).expect("queue full");
@@ -28,13 +29,15 @@ impl Executor {
 
     pub fn run(&mut self) -> ! {
         loop {
+            if self.tasks.is_empty() {
+                panic!("No other tasks, bailing out for safety...");
+            }
             self.run_ready_tasks();
             self.sleep_if_idle();
         }
     }
 
     fn run_ready_tasks(&mut self) {
-        // destructure `self` to avoid borrow checker errors
         let Self {
             tasks,
             task_queue,
@@ -52,7 +55,6 @@ impl Executor {
             let mut context = Context::from_waker(waker);
             match task.poll(&mut context) {
                 Poll::Ready(()) => {
-                    // task done -> remove it and its cached waker
                     tasks.remove(&task_id);
                     waker_cache.remove(&task_id);
                 }
@@ -67,9 +69,8 @@ impl Executor {
         interrupts::disable();
         if self.task_queue.is_empty() {
             enable_and_hlt();
-        } else {
-            interrupts::enable();
         }
+        interrupts::enable();
     }
 }
 
