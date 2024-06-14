@@ -14,12 +14,12 @@ use LUM::task::keyboard::initialize_scancode_queue;
 fn panic(info: &PanicInfo) -> ! {
     // Extract the location if available
     if let Some(location) = info.location() {
-        println!("PANIC: at file '{}' line {}", location.file(), location.line());
+        println!("PANIC: at file '{}' line {}/n/n", location.file(), location.line());
     } else {
-        println!("PANIC: Location unknown.");
+        println!("PANIC: Location unknown./n/n");
     }
 
-    println!("Message: Well, something happened.");
+    println!("Message: '{}'/n/n", info);
 
     LUM::hlt_loop();
 }
@@ -56,7 +56,7 @@ fn lum_main(boot_info: &'static BootInfo) -> ! {
     executor.spawn(Task::new(load_shell()));
     executor.run();
 
-    // Trigger a panic as we don't have anything else to do.
+    // If executor.run() returns, panic because there are no tasks left to execute.
     panic!("No other tasks, bailing out for safety...");
 }
 
