@@ -7,7 +7,7 @@ use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 pub async fn ulsh_main() {
     let mut keyboard = Keyboard::new(ScancodeSet1::new(), layouts::Us104Key, HandleControl::Ignore);
 
-    println!("Welcome to ULSH! (Unix-Like SHell)");
+    println!("Welcome to ULSH! (Unix-Like SHell)\n\n");
     loop {
         println!("ULSH > ");
         let input = read_line(&mut keyboard).await;
@@ -15,7 +15,7 @@ pub async fn ulsh_main() {
         match input.trim() {
             "exit" => {
                 println!("Exiting shell...\n");
-                break;
+                return;
             }
             "ahoy" => {
                 println!("Ahoy, LUM/MARINER!\n");
@@ -47,7 +47,6 @@ async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> 
                             if !input.is_empty() {
                                 input.pop();
                                 buffer.pop();
-                                println!("\x08 \x08"); // Handle backspace correctly
                             }
                         } else {
                             input.push(character);
