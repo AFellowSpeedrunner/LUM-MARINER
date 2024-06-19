@@ -1,4 +1,4 @@
-# LUM-MARINER
+# LUM/MARINER
 LUM/MARINER attempts to aim to be a clone of XNU/Darwin written in Rust just without the Apple stuff. A kernel and Operating System.
 
 Credits to [phil-opp](https://github.com/phil-opp) for the base code of this kernel.
