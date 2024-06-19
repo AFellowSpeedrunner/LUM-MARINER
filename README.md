@@ -52,6 +52,14 @@ I've always found XNU and Darwin really interesting to me and I've always wanted
 ## What does MARINER stand for?
 It's a reference to something. I may say it in the future.
 
+## Star History
+<a href="https://star-history.com/#AFellowSpeedrunner/LUM-MARINER&Timeline">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AFellowSpeedrunner/LUM-MARINER&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AFellowSpeedrunner/LUM-MARINER&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AFellowSpeedrunner/LUM-MARINER&type=Date" />
+ </picture>
+</a>
 
 
 Oh, and I should probably point out that I'm doing this for fun and learning, before anyone attempts to destroy me for this... I know some people will.
