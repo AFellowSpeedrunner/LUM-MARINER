@@ -17,11 +17,25 @@ pub async fn ulsh_main() {
                 println!("Exiting shell...\n");
                 return;
             }
+            "stars" => {
+                println!("LUM/MARINER, as of the 19th of June 2024 22:53 BST, has 9 stars. Thanks to everyone who has starred the repository!\n")
+            }
             "ahoy" => {
                 println!("Ahoy, LUM/MARINER!\n");
             }
+            "f" => {
+                println!("F\n\n");
+                panic!("F");
+            }
+            "F" => {
+                println!("F\n\n");
+                panic!("F");
+            }
+            "panic" => {
+                panic!();
+            }
             "help" => {
-                println!("Available commands:\nahoy - Ahoy, captain!\nexit - Exit the shell\n");
+                println!("Available commands:\nahoy - Ahoy, captain!\nexit - Exit the shell\nstars - See how many stars the repo has since the latest ULSH update\npanic - Make the kernel panic\n");
             }
             _ => {
                 println!("Unknown command: {}\n", input.trim());
