@@ -14,13 +14,32 @@ use LUM::task::keyboard::initialize_scancode_queue;
 fn panic(info: &PanicInfo) -> ! {
     // Extract the location if available
     if let Some(location) = info.location() {
-        println!("PANIC: at file '{}' line {}/n/n", location.file(), location.line());
+        // Get just the file name from the full path
+        let file = location.file();
+        let file_name = file.split('/').last().unwrap_or(file); // Extracts the last component as the file name
+        println!("PANIC: at file '{}' line {}\n\n", file_name, location.line());
     } else {
-        println!("PANIC: Location unknown./n/n");
+        println!("PANIC: Location unknown.\n\n");
     }
 
-    println!("Message: '{}'/n/n", info);
+    // Print the panic message (CURRENTLY COMMENTED DUE TO POTENTIAL PRIVACY ISSUE FOR HOST COMPILER)
+    // println!("Message: '{}'", info);
 
+    // Reason why I commented it out is because whenever the system would crash in certain scripts, it would show the full
+    // development env folder location starting from root. This would look like:
+    //
+    // /Users/*fullnameorusernameonmachine*/LUM-MARINER/LUM/src/ulsh/shell.rs:27:17: *panictext*
+    //
+    // This is unwanted behaviour and potentially a huge issue for others compiling and sharing binaries
+    // but they don't share their name.
+    //
+    // Until there is a better way of this, there will be a static message. At least the PANIC text itself
+    // could be rid of this issue.
+
+    println!("Message: 'The kernel... just died on us. F in ULSH to pay respects.\n\nDo You Understand!!??'");
+
+
+    // Your kernel's halt loop function
     LUM::hlt_loop();
 }
 
@@ -57,7 +76,9 @@ fn lum_main(boot_info: &'static BootInfo) -> ! {
     executor.run();
 
     // If executor.run() returns, panic because there are no tasks left to execute.
-    panic!("No other tasks, bailing out for safety...");
+    // panic!("No other tasks, bailing out for safety...");
+
+    // Commented because it's useless currently and won't even work due to latest changes.
 }
 
 async fn load_shell() {
