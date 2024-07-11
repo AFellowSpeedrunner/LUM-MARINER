@@ -1,10 +1,7 @@
 name: Build and push latest kernel compile
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -51,9 +48,4 @@ jobs:
         tag_name: latest
       env:
         GITHUB_TOKEN: ${{ secrets.LUMMARINERPUSH }}
-      id: create_release
-    - name: Tag the Release as Latest
-      run: |
-        git tag -f latest ${{ steps.create_release.outputs.upload_url }}
-        git push origin -f latest
 
