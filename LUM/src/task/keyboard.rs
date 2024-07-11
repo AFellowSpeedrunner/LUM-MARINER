@@ -21,12 +21,12 @@ static WAKER: AtomicWaker = AtomicWaker::new();
 pub(crate) fn add_scancode(scancode: u8) {
     if let Ok(queue) = SCANCODE_QUEUE.try_get() {
         if let Err(_) = queue.push(scancode) {
-            println!("WARNING: scancode queue full; dropping keyboard input\n\n");
+            println!("WARNING: scancode queue full; dropping keyboard input");
         } else {
             WAKER.wake();
         }
     } else {
-        println!("WARNING: scancode queue uninitialized\n\n");
+        println!("WARNING: scancode queue uninitialized");
     }
 }
 
@@ -36,7 +36,6 @@ pub struct ScancodeStream {
 
 impl ScancodeStream {
     pub fn new() -> Self {
-        // Ensure the queue is initialized once
         initialize_scancode_queue();
         ScancodeStream { _private: () }
     }
@@ -48,9 +47,8 @@ impl Stream for ScancodeStream {
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<u8>> {
         let queue = SCANCODE_QUEUE
             .try_get()
-            .expect("scancode queue not initialized\n\n");
+            .expect("scancode queue not initialized");
 
-        // fast path
         if let Some(scancode) = queue.pop() {
             return Poll::Ready(Some(scancode));
         }
@@ -73,43 +71,44 @@ pub async fn print_keypresses() {
         layouts::Us104Key,
         HandleControl::Ignore,
     );
-    let mut buffer = String::new(); // Buffer to store the current line
+    let mut buffer = String::new();
 
     while let Some(scancode) = scancodes.next().await {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
             if let Some(key) = keyboard.process_keyevent(key_event) {
                 match key {
                     DecodedKey::Unicode(character) => {
-                        if character == '\n' {
-                            println!("{}", buffer); // Print the buffer when Enter is pressed
-                            buffer.clear(); // Clear the buffer for the next line
-                        } else if character == '\x08' { // Backspace character
-                            if !buffer.is_empty() {
-                                buffer.pop();
-                                print!("\x08 \x08"); // Handle backspace correctly
+                        match character {
+                            '\n' => {
+                                println!("{}", buffer);
+                                buffer.clear();
                             }
-                        } else {
-                            buffer.push(character);
-                            print!("{}", character);
+                            '\x08' => { // Backspace character
+                                if !buffer.is_empty() {
+                                    buffer.pop();
+                                    print!("\x08 \x08"); // Handle backspace correctly
+                                }
+                            }
+                            _ => {
+                                buffer.push(character);
+                                print!("{}", character);
+                            }
                         }
                     }
-                    DecodedKey::RawKey(key) => {
-                        // Handle raw key if needed
-                    }
+                    DecodedKey::RawKey(_) => {}
                 }
             }
         }
     }
 }
 
-
 /// Initialize the SCANCODE_QUEUE if it hasn't been initialized yet
 pub fn initialize_scancode_queue() {
     if SCANCODE_QUEUE.try_get().is_err() {
-        if let Err(_) = SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100)) {
-            println!("ERROR: Failed to initialize scancode queue\n\n");
+        if SCANCODE_QUEUE.try_init_once(|| ArrayQueue::new(100)).is_ok() {
+            println!("Scancode queue initialized");
         } else {
-            println!("Scancode queue initialized\n\n");
+            println!("ERROR: Failed to initialize scancode queue");
         }
     }
 }

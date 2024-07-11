@@ -29,9 +29,6 @@ impl Executor {
 
     pub fn run(&mut self) -> ! {
         loop {
-            if self.tasks.is_empty() {
-                panic!("No other tasks, bailing out for safety...");
-            }
             self.run_ready_tasks();
             self.sleep_if_idle();
         }
@@ -45,20 +42,18 @@ impl Executor {
         } = self;
 
         while let Some(task_id) = task_queue.pop() {
-            let task = match tasks.get_mut(&task_id) {
-                Some(task) => task,
-                None => continue, // task no longer exists
-            };
-            let waker = waker_cache
-                .entry(task_id)
-                .or_insert_with(|| TaskWaker::new(task_id, task_queue.clone()));
-            let mut context = Context::from_waker(waker);
-            match task.poll(&mut context) {
-                Poll::Ready(()) => {
-                    tasks.remove(&task_id);
-                    waker_cache.remove(&task_id);
+            if let Some(task) = tasks.get_mut(&task_id) {
+                let waker = waker_cache
+                    .entry(task_id)
+                    .or_insert_with(|| TaskWaker::new(task_id, task_queue.clone()));
+                let mut context = Context::from_waker(waker);
+                match task.poll(&mut context) {
+                    Poll::Ready(()) => {
+                        tasks.remove(&task_id);
+                        waker_cache.remove(&task_id);
+                    }
+                    Poll::Pending => {}
                 }
-                Poll::Pending => {}
             }
         }
     }
@@ -81,10 +76,7 @@ struct TaskWaker {
 
 impl TaskWaker {
     fn new(task_id: TaskId, task_queue: Arc<ArrayQueue<TaskId>>) -> Waker {
-        Waker::from(Arc::new(TaskWaker {
-            task_id,
-            task_queue,
-        }))
+        Waker::from(Arc::new(TaskWaker { task_id, task_queue }))
     }
 
     fn wake_task(&self) {

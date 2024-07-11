@@ -16,7 +16,8 @@ fn panic(info: &PanicInfo) -> ! {
     if let Some(location) = info.location() {
         // Get just the file name from the full path
         let file = location.file();
-        let file_name = file.split('/').last().unwrap_or(file); // Extracts the last component as the file name
+        let file_name = file.split('/').last().unwrap_or(file); // Unix specific.
+        let file_name = file.split('\\').last().unwrap_or(file); // Barely works Windows specific
         println!("PANIC: at file '{}' line {}\n\n", file_name, location.line());
     } else {
         println!("PANIC: Location unknown.\n\n");
