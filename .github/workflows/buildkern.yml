@@ -29,8 +29,30 @@ jobs:
     - name: Build LUM
       run: cd LUM && cargo bootimage
     - name: Upload compiled kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: latest
+        name: bootimage-LUM.bin
         path: LUM/target/x86_64-unknown-none/debug/bootimage-LUM.bin
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download Boot Image
+      uses: actions/download-artifact@v4
+      with:
+        name: bootimage
+        path: ./release
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./release/bootimage-LUM.bin
+      env:
+        GITHUB_TOKEN: ${{ secrets.LUMMARINERPUSH }}
+      id: create_release
+    - name: Tag the Release as Latest
+      run: |
+        git tag -f latest ${{ steps.create_release.outputs.upload_url }}
+        git push origin -f latest
 
