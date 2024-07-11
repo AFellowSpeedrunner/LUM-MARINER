@@ -48,6 +48,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: ./release/bootimage-LUM.bin
+        tag_name: latest
       env:
         GITHUB_TOKEN: ${{ secrets.LUMMARINERPUSH }}
       id: create_release
