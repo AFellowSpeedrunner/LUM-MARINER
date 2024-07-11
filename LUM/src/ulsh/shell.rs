@@ -18,7 +18,7 @@ pub async fn ulsh_main() {
                 return;
             }
             "stars" => {
-                println!("LUM/MARINER, as of the 19th of June 2024 22:53 BST, has 9 stars. Thanks to everyone who has starred the repository!\n")
+                println!("LUM/MARINER, as of the 11th of July 2024 22:28 BST, has 12 stars. Thanks to everyone who has starred the repository!\n")
             }
             "ahoy" => {
                 println!("Ahoy, LUM/MARINER!\n");
