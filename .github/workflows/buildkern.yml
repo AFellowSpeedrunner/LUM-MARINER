@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install nightly toolchain
+      run: rustup toolchain install nightly
     - name: Install bootimage
       run: cargo install bootimage
     - name: Add target
