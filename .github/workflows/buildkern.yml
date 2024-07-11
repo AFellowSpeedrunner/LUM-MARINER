@@ -18,6 +18,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Go to LUM folder
       run: cd LUM
+    - name: Install bootimage
+      run: cargo install bootimage
     - name: Build
       run: cargo bootimage
 
