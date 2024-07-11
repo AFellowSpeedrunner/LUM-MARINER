@@ -1,9 +1,12 @@
 # LUM/MARINER
+
+[![Latest compile run](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml/badge.svg)](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml)
+
 LUM/MARINER attempts to aim to be a clone of XNU/Darwin written in Rust just without the Apple stuff. A kernel and Operating System.
 
 Credits to [phil-opp](https://github.com/phil-opp) for the base code of this kernel.
 
-## What I plan for this?
+## What do I plan for this?
 
 I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like a clone of XNU/Darwin to some degree. I plan on making this compatible with Linux/Unix applications and making the kernel modular to allow for easier modifications.
 
