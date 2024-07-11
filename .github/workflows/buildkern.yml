@@ -1,4 +1,4 @@
-name: Build kernel
+name: Build and push latest kernel compile
 
 on:
   push:
@@ -17,9 +17,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install rust nightly, default it, add target, add src to nightly unknown and install llvm-tools-preview in rustup
-      run: rustup toolchain install nightly && rustup default nightly && cd LUM && rustup target add x86_64-unknown-none && rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu && rustup component add llvm-tools-preview 
+      run: | rustup toolchain install nightly
+             rustup default nightly 
+             cd LUM
+             rustup target add x86_64-unknown-none
+             rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu 
+             rustup component add llvm-tools-preview 
     - name: Install bootimage
       run: cargo install bootimage
     - name: Build LUM
       run: cd LUM && cargo bootimage
+    - name: Upload compiled kernel
+      uses: actions/upload-artifact@v3
+      with:
+        name: latest
+        path: LUM/target/x86_64-unknown-none/debug/bootimage-LUM.bin
 
