@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Go to LUM folder
+      run: cd LUM
     - name: Build
-      run: cargo build --verbose
+      run: cargo bootimage
 
