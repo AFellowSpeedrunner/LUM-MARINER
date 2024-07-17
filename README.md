@@ -56,7 +56,7 @@ I've always found XNU and Darwin really interesting to me and I've always wanted
 It's a reference to something. I may say it in the future.
 
 ## Star History
-<a href="https://star-history.com/#AFellowSpeedrunner/LUM-MARINER&Timeline">
+<a href="https://star-history.com/#AFellowSpeedrunner/LUM-MARINER&Date">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AFellowSpeedrunner/LUM-MARINER&type=Date&theme=dark" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AFellowSpeedrunner/LUM-MARINER&type=Date" />
