@@ -31,5 +31,7 @@ It's a reference to something. I may say it in the future.
  </picture>
 </a>
 
+## Communications
+[Zed Channel](https://zed.dev/channel/LUM-MARINER-on-Zed-11861)
 
 Oh, and I should probably point out that I'm doing this for fun and learning, before anyone attempts to destroy me for this... I know some people will.
