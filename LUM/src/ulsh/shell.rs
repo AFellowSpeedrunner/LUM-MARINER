@@ -3,6 +3,8 @@ use crate::println;
 use crate::task::keyboard::ScancodeStream;
 use futures_util::stream::StreamExt;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
+use crate::print::WRITER;
+use crate::print::BUFFER_HEIGHT;
 
 pub async fn ulsh_main() {
     let mut keyboard = Keyboard::new(ScancodeSet1::new(), layouts::Us104Key, HandleControl::Ignore);
@@ -55,17 +57,29 @@ async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> 
                 match key {
                     DecodedKey::Unicode(character) => {
                         if character == '\n' {
-                            println!("{}", character); // Print the newline character
+                            // Print the newline character and exit the loop
+                            println!("{}", character);
                             break;
                         } else if character == '\x08' { // Backspace character
                             if !input.is_empty() {
-                                input.pop();
-                                buffer.pop();
+                                input.pop(); // Remove from input string
+                                
+                                // Erase from buffer and update screen
+                                let row = BUFFER_HEIGHT - 1; // Assuming single-line input
+                                let col = buffer.len() - 1;
+                                buffer.pop(); // Remove character from buffer
+                                
+                                // Clear the last character from the screen
+                                WRITER.lock().handle_backspace();
+
+                                // Update cursor position
+                                let writer = WRITER.lock();
+                                writer.update_cursor();
                             }
                         } else {
-                            input.push(character);
-                            buffer.push(character);
-                            println!("{}", character);
+                            input.push(character); // Add to input string
+                            buffer.push(character); // Add to buffer
+                            println!("{}", character); // Echo character to screen
                         }
                     }
                     _ => {}
