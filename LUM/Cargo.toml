@@ -30,3 +30,7 @@ default-features = false
 version = "0.3.4"
 default-features = false
 features = ["alloc"]
+
+[profile.release]
+opt-level = "s"
+lto = true
