@@ -24,7 +24,7 @@ jobs:
     - name: Install bootimage
       run: cargo install bootimage
     - name: Build LUM
-      run: cd LUM && cargo bootimage
+      run: cd LUM && cargo bootimage --release
     - name: Upload compiled kernel
       uses: actions/upload-artifact@v4
       with:
