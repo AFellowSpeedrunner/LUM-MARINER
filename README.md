@@ -1,6 +1,6 @@
 # LUM/MARINER
 
-[![Latest compile run](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml/badge.svg)](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml)
+[![Latest compile run](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml/badge.svg?branch=main)](https://github.com/AFellowSpeedrunner/LUM-MARINER/actions/workflows/buildkern.yml)
 
 LUM/MARINER attempts to aim to be a clone of XNU/Darwin written in Rust just without the Apple stuff. A kernel and Operating System.
 
