@@ -6,6 +6,9 @@ LUM/MARINER attempts to aim to be a clone of XNU/Darwin written in Rust just wit
 
 Credits to [phil-opp](https://github.com/phil-opp) for the base code of this kernel.
 
+## Disclaimer
+If you are looking for something that works and that you can use, **this currently is not what you're looking for.** Go use [Aero](https://github.com/Andy-Python-Programmer/aero)  by Andy-Python-Programmer instead. This still has a long way to go but I'm optimistic. If you're really bent on trying this, don't expect much. (Fun fact: Aero is another inspiration for me actually going ahead and trying to make this kernel and OS.)
+
 ## What do I plan for this?
 
 I plan for LUM/MARINER to become a Unix based kernel in Rust that is almost like a clone of XNU/Darwin to some degree. I plan on making this compatible with Linux/Unix applications and making the kernel modular to allow for easier modifications.
