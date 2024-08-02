@@ -16,8 +16,7 @@ fn panic(info: &PanicInfo) -> ! {
     if let Some(location) = info.location() {
         // Get just the file name from the full path
         let file = location.file();
-        let file_name = file.split('/').last().unwrap_or(file); // Unix specific.
-        let file_name = file.split('\\').last().unwrap_or(file); // Barely works Windows specific
+        let file_name = file.rsplit(&['/', '\\'][..]).next().unwrap_or(file); // Finally fix this so it works on both Windows and Unix(-like) systems.
         println!("PANIC: at file '{}' line {}\n\n", file_name, location.line());
     } else {
         println!("PANIC: Location unknown.\n\n");
