@@ -4,7 +4,6 @@ use crate::task::keyboard::ScancodeStream;
 use futures_util::stream::StreamExt;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use crate::print::WRITER;
-use crate::print::BUFFER_HEIGHT;
 
 pub async fn ulsh_main() {
     let mut keyboard = Keyboard::new(ScancodeSet1::new(), layouts::Us104Key, HandleControl::Ignore);
@@ -65,8 +64,6 @@ async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> 
                                 input.pop(); // Remove from input string
                                 
                                 // Erase from buffer and update screen
-                                let row = BUFFER_HEIGHT - 1; // Assuming single-line input
-                                let col = buffer.len() - 1;
                                 buffer.pop(); // Remove character from buffer
                                 
                                 // Clear the last character from the screen
