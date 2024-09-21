@@ -79,14 +79,14 @@ impl Writer {
             x86_64::instructions::port::Port::new(0x3D5).write((position >> 8) as u8);
         }
     }
-    
+
     fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
             b'\x08' => self.handle_backspace(),
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
-                    self.new_line();
+                    self.new_line(); // Move to a new line if at the end of the current line
                 }
 
                 let row = BUFFER_HEIGHT - 1;
@@ -131,7 +131,7 @@ impl Writer {
                 color_code: self.color_code,
             });
         }
-        
+
         // Update the cursor position
         self.update_cursor();
     }
@@ -147,13 +147,14 @@ impl Writer {
     }
 
     fn new_line(&mut self) {
+        // Shift all rows up
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
                 let character = self.buffer.chars[row][col].read();
                 self.buffer.chars[row - 1][col].write(character);
             }
         }
-        self.clear_row(BUFFER_HEIGHT - 1);
+        self.clear_row(BUFFER_HEIGHT - 1); // Clear the last row
         self.column_position = 0;
         self.cursor_position = (BUFFER_HEIGHT - 1, 0);
         self.update_cursor();

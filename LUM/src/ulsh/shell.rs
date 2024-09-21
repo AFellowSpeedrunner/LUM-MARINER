@@ -24,14 +24,6 @@ pub async fn ulsh_main() {
             "ahoy" => {
                 println!("Ahoy, LUM/MARINER!\n");
             }
-            "f" => {
-                println!("F\n\n");
-                panic!("F");
-            }
-            "F" => {
-                println!("F\n\n");
-                panic!("F");
-            }
             "panic" => {
                 panic!();
             }
@@ -62,10 +54,10 @@ async fn read_line(keyboard: &mut Keyboard<layouts::Us104Key, ScancodeSet1>) -> 
                         } else if character == '\x08' { // Backspace character
                             if !input.is_empty() {
                                 input.pop(); // Remove from input string
-                                
+
                                 // Erase from buffer and update screen
                                 buffer.pop(); // Remove character from buffer
-                                
+
                                 // Clear the last character from the screen
                                 WRITER.lock().handle_backspace();
 

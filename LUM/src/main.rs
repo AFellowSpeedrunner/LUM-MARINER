@@ -12,34 +12,17 @@ use LUM::task::keyboard::initialize_scancode_queue;
 // This function is called on panic.
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    // Extract the location if available
-    if let Some(location) = info.location() {
-        // Get just the file name from the full path
-        let file = location.file();
-        let file_name = file.rsplit(&['/', '\\'][..]).next().unwrap_or(file); // Finally fix this so it works on both Windows and Unix(-like) systems.
-        println!("PANIC: at file '{}' line {}\n\n", file_name, location.line());
+    // Directly use the message, assuming it’s a string slice
+    let message = if let Some(msg) = info.payload().downcast_ref::<&str>() {
+        *msg
     } else {
-        println!("PANIC: Location unknown.\n\n");
-    }
+        "Unknown panic message."
+    };
 
-    // Print the panic message (CURRENTLY COMMENTED DUE TO POTENTIAL PRIVACY ISSUE FOR HOST COMPILER)
-    // println!("Message: '{}'", info);
+    // Print the panic message
+    println!("PANIC: {}\n", message);
 
-    // Reason why I commented it out is because whenever the system would crash in certain scripts, it would show the full
-    // development env folder location starting from root. This would look like:
-    //
-    // /Users/*fullnameorusernameonmachine*/LUM-MARINER/LUM/src/ulsh/shell.rs:27:17: *panictext*
-    //
-    // This is unwanted behaviour and potentially a huge issue for others compiling and sharing binaries
-    // but they don't share their name.
-    //
-    // Until there is a better way of this, there will be a static message. At least the PANIC text itself
-    // could be rid of this issue.
-
-    println!("Message: 'The kernel... just died on us. F in ULSH to pay respects.\n\nDo You Understand!!??'");
-
-
-    // Your kernel's halt loop function
+    // Halt the CPU in an infinite loop after a panic
     LUM::hlt_loop();
 }
 
